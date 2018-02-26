@@ -1,0 +1,57 @@
+<html>
+	<head>
+	   <script>
+	       var source;
+	       
+	       function setupEventSource() {
+     	       document.getElementById("btnClose").onclick = close;
+	       
+	           if (typeof(EventSource) !== "undefined") {
+	             // Close  already connected to avoid duplicated messages
+	             if (typeof(source) !== "undefined") {
+	                 source.close();
+	             }
+	             
+	             source = new EventSource("http://localhost:#[serverPort]/sse");
+	             
+	             source.onerror = function(event) {
+	                 console.log("SSE onerror " + event);
+	                 if ( event.target.readyState == 2 ) {
+	                     // Clean up and reestablish connection
+	                     try {
+	                         source.close();
+	                     } catch ( err ) { }
+	                     setTimeout(function() { setupEventSource(); }, 1000);
+	                 }
+	             }
+	             
+	             source.onopen = function() {
+	                 console.log("SSE onopen");
+	             }
+	             
+	             source.onmessage = function(event) {
+	                 console.log("SSE onmessage: " + event.data);
+	             }
+	         }
+	         else {
+	           Alert("Error: Server-Sent Events are not supported in your browser");
+	         }
+	       }
+	       function onPageLoad() {
+	           setupEventSource();
+	       }
+	       
+	       function close() {
+               console.log("SSE close from ui");
+	           source.close();
+	       }
+	       
+	       window.addEventListener("load", onPageLoad, true);
+	   </script>
+    </head>
+
+	<body>
+        <input id="btnClose" type="button" value="Close" />
+	</body>
+
+</html>

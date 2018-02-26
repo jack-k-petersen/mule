@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xsi:schemaLocation="
+               http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+               http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd">
+
+<!--     <spring:bean name="customObjectStore" class="org.mule.util.store.SimpleMemoryObjectStore"/> -->
+
+    <http:listener-config name="listenerConfig" host="localhost" port="${serverPort}"/>
+
+    <http:event-publisher-config name="sseEndpointListenerConfig" config-ref="listenerConfig" path="/sse" retry="10000">
+<!--     <http:event-publisher-config name="sseEndpointListenerConfig" config-ref="listenerConfig" path="/sse" retry="10000" -->
+<!--                     objectStore-ref="customObjectStore"> -->
+        <http:response-builder>
+            <http:header headerName="Access-Control-Allow-Origin" value="*"/>
+        </http:response-builder>
+        <http:publisher-threading-profile maxThreadsActive="4"/>
+    </http:event-publisher-config>
+
+    <flow name="publishDefault">
+        <http:listener config-ref="listenerConfig" path="/publishDefault"/>
+        <http:publish-event config-ref="sseEndpointListenerConfig"/>
+    </flow>
+
+    <flow name="publishCustom">
+        <http:listener config-ref="listenerConfig" path="/publish"/>
+        <http:publish-event config-ref="sseEndpointListenerConfig">
+            <http:event-builder data="#[message.inboundProperties['data']]" event="#[message.inboundProperties['event']]"/>
+        </http:publish-event>
+    </flow>
+
+    <flow name="testPage">
+        <http:listener config-ref="listenerConfig" path="/testPage"/>
+        
+        <set-variable variableName="serverPort" value="${serverPort}" />
+        <parse-template location="src/test/resources/sse/index.html"/>
+    </flow>
+
+
+    <!-- This consumer stuff is used for running the test cases, they are not the subject of the test -->
+    
+    <http:request-config name="testRequestConfig" protocol="HTTP"/>
+    
+    <flow name="sseConsumer" initialState="stopped">
+        <http:event-stream-listener
+                config-ref="testRequestConfig"
+                host="localhost" port="${serverPort}"
+                responseTimeout="20000"
+                path="/sse">
+        </http:event-stream-listener>
+
+        <copy-properties propertyName="*"/>
+        <vm:outbound-endpoint path="out"/>
+    </flow>
+
+</mule>

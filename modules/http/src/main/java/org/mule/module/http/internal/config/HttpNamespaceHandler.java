@@ -6,13 +6,15 @@
  */
 package org.mule.module.http.internal.config;
 
+import static org.mule.api.config.MuleProperties.OBJECT_DEFAULT_MESSAGE_DISPATCHER_THREADING_PROFILE;
+
 import org.mule.api.config.MuleProperties;
 import org.mule.config.spring.handlers.AbstractMuleNamespaceHandler;
+import org.mule.config.spring.parsers.delegate.ParentContextDefinitionParser;
 import org.mule.config.spring.parsers.delegate.RootOrNestedElementBeanDefinitionParser;
 import org.mule.config.spring.parsers.generic.ChildDefinitionParser;
 import org.mule.config.spring.parsers.generic.MuleOrphanDefinitionParser;
 import org.mule.config.spring.parsers.specific.MessageProcessorDefinitionParser;
-import org.mule.config.spring.parsers.specific.ThreadingProfileDefinitionParser;
 import org.mule.module.http.internal.HttpMapParam;
 import org.mule.module.http.internal.HttpMessageBuilderRef;
 import org.mule.module.http.internal.HttpParamType;
@@ -26,7 +28,10 @@ import org.mule.module.http.internal.request.HttpAuthenticationType;
 import org.mule.module.http.internal.request.NtlmProxyConfig;
 import org.mule.module.http.internal.request.RamlApiConfiguration;
 import org.mule.module.http.internal.request.SuccessStatusCodeValidator;
+import org.mule.module.http.internal.sse.DefaultHttpEventPublisherConfig;
 import org.mule.module.http.internal.sse.DefaultHttpEventStreamListener;
+import org.mule.module.http.internal.sse.DefaultHttpPublishEvent;
+import org.mule.module.http.internal.sse.HttpSseEventBuilder;
 
 public class HttpNamespaceHandler extends AbstractMuleNamespaceHandler
 {
@@ -71,6 +76,12 @@ public class HttpNamespaceHandler extends AbstractMuleNamespaceHandler
 
         registerBeanDefinitionParser("event-stream-listener", new ChildDefinitionParser("messageSource", DefaultHttpEventStreamListener.class));
 
-    
+        final MuleOrphanDefinitionParser eventPublisherConfigDefinitionParser = new MuleOrphanDefinitionParser(DefaultHttpEventPublisherConfig.class, true);
+        registerBeanDefinitionParser("event-publisher-config", eventPublisherConfigDefinitionParser);
+        registerBeanDefinitionParser("publisher-threading-profile", new HttpThreadingProfileDefinitionParser("publisherThreadingProfile", OBJECT_DEFAULT_MESSAGE_DISPATCHER_THREADING_PROFILE));
+
+        registerBeanDefinitionParser("publish-event", new MessageProcessorDefinitionParser(DefaultHttpPublishEvent.class));
+        registerBeanDefinitionParser("event-builder", new ParentContextDefinitionParser("publish-event", new ChildDefinitionParser("event-builder", HttpSseEventBuilder.class)));
+
     }
 }

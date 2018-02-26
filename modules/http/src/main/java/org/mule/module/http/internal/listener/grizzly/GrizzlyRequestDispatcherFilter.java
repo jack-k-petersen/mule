@@ -21,6 +21,7 @@ import static org.mule.module.http.internal.listener.grizzly.ExecutorPerServerAd
 import static org.mule.module.http.internal.listener.grizzly.MuleSslFilter.SSL_SESSION_ATTRIBUTE_KEY;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLSession;
@@ -130,6 +131,21 @@ public class GrizzlyRequestDispatcherFilter extends BaseFilter
                 catch (Exception e)
                 {
                     responseStatusCallback.responseSendFailure(e);
+                }
+            }
+            
+            @Override
+            public Writer startResponse(HttpResponse httpResponse, ResponseStatusCallback responseStatusCallback) {
+                try
+                {
+                    ResponseDelayedCompletionHandler responseCompletionHandler = new ResponseDelayedCompletionHandler(ctx, request, httpResponse, responseStatusCallback);
+                    responseCompletionHandler.start();
+                    return responseCompletionHandler.buildWriter();
+                }
+                catch (Exception e)
+                {
+                    responseStatusCallback.responseSendFailure(e);
+                    return null;
                 }
             }
         });

@@ -36,7 +36,7 @@ public class GrizzlyHttpRequestAdapter extends BaseHttpMessage implements HttpRe
     private final HttpRequestPacket requestPacket;
     private final InputStream requestContent;
     private final FilterChainContext filterChainContext;
-    private final int contentLength;
+    private final long contentLength;
     private final boolean isTransferEncodingChunked;
     private HttpProtocol protocol;
     private String uri;
@@ -50,13 +50,13 @@ public class GrizzlyHttpRequestAdapter extends BaseHttpMessage implements HttpRe
         this.filterChainContext = filterChainContext;
         this.requestPacket = (HttpRequestPacket) httpContent.getHttpHeader();
         isTransferEncodingChunked = httpContent.getHttpHeader().isChunked();
-        int contentLengthAsInt = 0;
+        long contentLengthAsLong = 0;
         String contentLengthAsString = requestPacket.getHeader(CONTENT_LENGTH);
         if (contentLengthAsString != null)
         {
-            contentLengthAsInt = Integer.parseInt(contentLengthAsString);
+            contentLengthAsLong = Long.parseLong(contentLengthAsString);
         }
-        this.contentLength = contentLengthAsInt;
+        this.contentLength = contentLengthAsLong;
         InputStream contentInputStream = new BufferInputStream(httpContent.getContent());
         boolean contentIsIncomplete = !httpContent.isLast();
         if (contentIsIncomplete)

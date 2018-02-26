@@ -17,6 +17,7 @@ public class HttpResponseBuilderDefinitionParser extends ParentContextDefinition
     public HttpResponseBuilderDefinitionParser(String setterMethod)
     {
         super("listener", new ChildDefinitionParser(setterMethod, HttpResponseBuilder.class));
+        and("event-publisher-config", new ChildDefinitionParser(setterMethod, HttpResponseBuilder.class));
         and("mule", new MuleOrphanDefinitionParser(HttpResponseBuilder.class, true));
         otherwise(new MessageProcessorDefinitionParser(org.mule.transport.http.components.HttpResponseBuilder.class));
     }

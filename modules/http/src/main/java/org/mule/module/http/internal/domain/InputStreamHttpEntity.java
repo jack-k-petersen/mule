@@ -11,10 +11,10 @@ import java.io.InputStream;
 public class InputStreamHttpEntity implements HttpEntity
 {
 
-    private Integer contentLength;
+    private Long contentLength;
     private InputStream inputStream;
 
-    public InputStreamHttpEntity(Integer contentLength, InputStream inputStream)
+    public InputStreamHttpEntity(Long contentLength, InputStream inputStream)
     {
         this.contentLength = contentLength;
         this.inputStream = inputStream;
@@ -25,7 +25,7 @@ public class InputStreamHttpEntity implements HttpEntity
         this.inputStream = inputStream;
     }
 
-    public int getContentLength()
+    public long getContentLength()
     {
         return this.contentLength;
     }

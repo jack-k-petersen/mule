@@ -140,6 +140,165 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:element name="event-publisher-config" type="eventPublisherConfigType" substitutionGroup="mule:abstract-shared-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Grouping configuration for a set of event publisher elements.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="eventPublisherConfigType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:sequence>
+                    <xsd:element name="response-builder" minOccurs="0" maxOccurs="1" type="responseBuilderType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Contains the definition of all the parameters that should be sent in the response (headers, status code, response phrase).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="error-response-builder" minOccurs="0" maxOccurs="1" type="responseBuilderType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Contains the definition of all the parameters that should be sent in the response (headers, status code, response phrase).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+<!--                     <xsd:element ref="tls:context" minOccurs="0" maxOccurs="1" /> -->
+                    <xsd:element name="publisher-threading-profile" type="mule:asynchronousThreadingProfileType" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:attribute name="config-ref" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A reference to the configuration element for this listener. If no reference is provided,
+                            a default configuration will be created.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="name" type="mule:substitutableName" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identifies the configuration in the registry, so that it can be referenced by the request message processor.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+<!--                 <xsd:attribute name="protocol" type="httpProtocol" default="HTTP"> -->
+<!--                     <xsd:annotation> -->
+<!--                         <xsd:documentation> -->
+<!--                             Protocol to use for communication. Valid values are HTTP and HTTPS. Default value is HTTP. When using HTTPS the -->
+<!--                             HTTP communication is going to be secured using TLS / SSL. If HTTPS was configured as protocol then the -->
+<!--                             user needs to configure at least the keystore in the tls:context child element of this listener-config. -->
+<!--                         </xsd:documentation> -->
+<!--                     </xsd:annotation> -->
+<!--                 </xsd:attribute> -->
+<!--                 <xsd:attribute name="host" type="xsd:string" use="required"> -->
+<!--                     <xsd:annotation> -->
+<!--                         <xsd:documentation> -->
+<!--                             Host where the requests will be sent. -->
+<!--                         </xsd:documentation> -->
+<!--                     </xsd:annotation> -->
+<!--                 </xsd:attribute> -->
+<!--                 <xsd:attribute name="port" type="mule:substitutableInt"> -->
+<!--                     <xsd:annotation> -->
+<!--                         <xsd:documentation> -->
+<!--                             Port where the requests will be received. If the protocol attribute is HTTP (default) then the default value is 80, if the protocol -->
+<!--                             attribute is HTTPS then the default value is 443. -->
+<!--                         </xsd:documentation> -->
+<!--                     </xsd:annotation> -->
+<!--                 </xsd:attribute> -->
+                <xsd:attribute name="path" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Base path to use for all requests that reference this config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+<!--                 <xsd:attribute name="tlsContext-ref" type="xsd:string"> -->
+<!--                     <xsd:annotation> -->
+<!--                         <xsd:documentation> -->
+<!--                             Reference to a TLS config element. This will enable HTTPS for this config. -->
+<!--                         </xsd:documentation> -->
+<!--                     </xsd:annotation> -->
+<!--                 </xsd:attribute> -->
+                <xsd:attribute name="retry" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            How long a client should way after being disconnected, in milliseconds.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="objectStore-ref" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            References an object store to use for storing internal SSE data.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="publish-event" type="publishEventType" substitutionGroup="mule:abstract-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Component that consumes an HTTP service.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="publishEventType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:element name="event-builder" minOccurs="0" maxOccurs="1" type="eventBuilderType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Contains the definition of all the parameters that should be sent in the request (uri params,
+                                query params and headers).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+
+                <xsd:attribute name="config-ref" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A reference to the configuration element for this requester. If no reference is provided,
+                            a default configuration will be created.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+
+    <xsd:element name="event-builder" type="eventBuilderType" substitutionGroup="mule:abstract-extension" />
+
+    <xsd:complexType name="eventBuilderType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="data" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Path where the request will be sent.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="event" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The HTTP method for the request.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+
+    </xsd:complexType>
+
     <xsd:element name="listener" type="listenerType" substitutionGroup="mule:abstract-message-source">
         <xsd:annotation>
             <xsd:documentation>

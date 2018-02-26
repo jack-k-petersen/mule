@@ -98,7 +98,7 @@ public class DefaultHttpEventStreamListener implements HttpServerSent, HttpReque
 
     private static final Pattern EVENT_LINE_PATTERN = compile("^(?!:.*)([^:\\r\\n]+)(?:: ?(.*)?)?");
     public static final String LAST_EVENT_ID_KEY = "Last-Event-ID";
-    private static final String RECONNECTION_TIME_KEY = "Reconnection-Time";
+    public static final String RECONNECTION_TIME_KEY = "Reconnection-Time";
     private static final String TEXT_EVENT_STREAM_MEDIA_TYPE = "text/event-stream";
 
     public static final String DEFAULT_FOLLOW_REDIRECTS = "true";
@@ -384,7 +384,14 @@ public class DefaultHttpEventStreamListener implements HttpServerSent, HttpReque
                     do {
                         if(incompleteBody)
                         {
-                            lines.add(lines.remove(lines.size() - 1) + line);
+                            if(lines.isEmpty())
+                            {
+                                lines.add(line);
+                            }
+                            else
+                            {
+                                lines.add(lines.remove(lines.size() - 1) + line);
+                            }
                             incompleteBody = false;
                         }
                         else

@@ -6,6 +6,8 @@
  */
 package org.mule.module.http.internal.listener.async;
 
+import java.io.Writer;
+
 import org.mule.module.http.internal.domain.response.HttpResponse;
 
 /**
@@ -21,5 +23,7 @@ public interface HttpResponseReadyCallback
      * @param responseStatusCallback callback to be called if there's a failure while sending the response
      */
     void responseReady(HttpResponse response, ResponseStatusCallback responseStatusCallback);
+
+    Writer startResponse(HttpResponse httpResponse, ResponseStatusCallback responseStatusCallback);
 
 }
